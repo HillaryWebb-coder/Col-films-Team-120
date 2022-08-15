@@ -6,7 +6,7 @@
 
 A web application that allows college students to upload, watch and share short videos from their comfort while enforcing time management to enable a productive lifestyle
 
-## Live server: [https://collywood.herokuapp.com/]("https://collywood.herokuapp.com/")
+##### Live server: [https://collywood.herokuapp.com/](https://collywood.herokuapp.com/)
 
 #### Tech Stack - Python/Django
 
