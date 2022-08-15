@@ -53,11 +53,11 @@ def uploadVideoView(request):
         if vidform.is_valid():
             vidform.save()
             return redirect("/accounts/profile")
-        else:
-            formData = vidform.errors.get_json_data()
-            for err in formData:
-                print(formData[err][0]["message"])
-            return JsonResponse(formData)
+        # else:
+        #     formData = vidform.errors.get_json_data()
+        #     for err in formData:
+        #         print(formData[err][0]["message"])
+        #     return JsonResponse(formData)
     return render(request, "video/upload-video.html", {"form": vidform})
 
 
