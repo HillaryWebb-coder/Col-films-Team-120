@@ -24,7 +24,7 @@
     <div class="py-20">
         <h2 class="text-2xl text-primary dark:text-light">My Uploads</h2>
         <section class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:p-5 ">
-            {% if video %}
+            {% if myVideos %}
             {% for video in myVideos %}
             <a href="{% url 'single-video' video.slug %}">
                 <div class="bg-primary rounded-lg overflow-hidden p-2 flex flex-col gap-6">
@@ -34,7 +34,7 @@
                     <p class="text-light">{{ video.description }}</p>
                     <div class="flex flex-row gap-5 justify-end p-2 self-end">
                         <button class="primary-btn-sm">{{ video.category.title }}</button>
-                        <button class="p-2 text-light">2020</button>
+                        <button class="p-2 text-light">{{ video.created_at|date:'Y' }}</button>
                     </div>
                 </div>
             </a>
