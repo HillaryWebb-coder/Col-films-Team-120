@@ -3,13 +3,18 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator
 from django.utils.text import slugify
+from django.contrib.auth import get_user_model
 # Create your models here.
 
 from members.models import Member
 
 
 class Profile(models.Model):
-    # User profile
+    """
+    Profile model for user profile
+
+    @deprecated, replaced with a custom user model
+    """
 
     user = models.OneToOneField(
         Member, verbose_name=_("Member"), on_delete=models.CASCADE)
@@ -40,7 +45,10 @@ class Category(models.Model):
 
 
 class Video(models.Model):
-    # Video model
+    """
+        Video model
+        Users can like and upload videos with this model
+    """
 
     author = models.ForeignKey(
         Member, verbose_name=_("Author"), on_delete=models.CASCADE)
@@ -51,6 +59,8 @@ class Video(models.Model):
         _("Cover Image"), upload_to="videos/%Y/%m", max_length=100, validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])])
     video_file = models.FileField(
         _("Video"), upload_to="videos/%Y/%m", max_length=100, validators=[FileExtensionValidator(['mp4'])])
+    likes = models.ManyToManyField(
+        get_user_model(), verbose_name=_("Likes"), related_name="liked")
     category = models.ForeignKey(Category, verbose_name=_(
         "Categories"), on_delete=models.CASCADE)
     published = models.BooleanField(_("Published"), default=True, blank=True)
@@ -72,12 +82,17 @@ class Video(models.Model):
 
 
 class Like(models.Model):
-    # Like and dislike
+    """
+    Like Model
+    Enables users to like and dislike videos
+    @deprecated, replaced wih many to many field on video model
+    """
 
     user = models.ForeignKey(Member, verbose_name=_(
         "User"), on_delete=models.CASCADE, related_name="likes")
-    video = models.ForeignKey(Video, verbose_name=_(
-        "Video"), on_delete=models.CASCADE, related_name="likes")
+    # video = models.ForeignKey(Video, verbose_name=_(
+    #     "Video"), on_delete=models.CASCADE, related_name="video_likes")
+    video = models.CharField(_("video"), max_length=50)
     liked = models.BooleanField(_("Liked"), default=False)
 
     class Meta:
@@ -95,7 +110,9 @@ class Like(models.Model):
 
 
 class Comment(models.Model):
-    # Comment model
+    """
+    Enables users to comment on videos
+    """
     user = models.ForeignKey(Member, verbose_name=_(
         "user"), on_delete=models.CASCADE, related_name="comments")
     full_name = models.CharField(_("Full Name"), max_length=50)

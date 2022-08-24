@@ -9,19 +9,26 @@
         <div class="p-6 flex flex-col gap-2">
             <div class="flex justify-between">
                 <h2 class="text-primary dark:text-light font-semibold text-2xl">{{ video.title }}</h2>
-                <p class="italic text-xs"><span id="reactions"></span> likes</p>
+                {% with likes=video.likes.all %}
+                {% with num_likes=likes.count %}
+                <p class="italic text-xs"><span id="reactions">{{ num_likes }}</span> like{{ num_likes | pluralize }}
+                </p>
+                {% endwith %}
             </div>
             <p>{{ video.description }}</p>
             <div class="flex w-full my-5 border-t p-5 justify-between">
                 {% csrf_token %}
-                <div class="border-r w-full gap-2 flex justify-center" id="like">
-                    <p>Like</p>
-                    <svg class="w-6 h-6" fill="white" id="like-btn" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
+                <div class="border-r w-full gap-2 flex justify-center {% if request.user in likes %}text-accent{% endif %}"
+                    id="like" data-action="{% if request.user in likes %}dislike{% else %}like{% endif %}">
+                    <p id="like-txt" class="">
+                        {% if request.user in likes %}dislike{% else %}like{% endif %}</p>
+                    <svg class="w-6 h-6" fill="{% if request.user in likes %}red{% else %}white{% endif %}"
+                        id="like-btn" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
                         </path>
                     </svg>
+                    {% endwith %}
                 </div>
                 <div class="w-full flex gap-2 justify-center">
                     <p>Share</p>
@@ -108,27 +115,36 @@
                                 .body + "</p></div>")
                         }
                     }
-                    if (json.liked) {
-                        $("#like-btn").attr("fill", "red")
-                        $("#like").addClass("text-accent")
-                    } else {
-                        $("#like-btn").attr("fill", "white")
-                        $("#like").removeClass("text-accent")
-                    }
-                    //
                 }
             })
         }, 500);
 
         $("#like").on("click", () => {
+            action = $("#like").attr("data-action")
             $.ajax({
                 url: "{% url 'like-video' %}",
                 type: "POST",
                 data: {
                     'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
-                    "video": "{{ video.id }}"
+                    "video": "{{ video.id }}",
+                    "action": action,
                 },
-                success: (json) => {}
+                success: (json) => {
+                    if (action === "like") {
+                        $("#like-btn").attr("fill", "red")
+                        $("#like-txt").html("dislike")
+                        $("#like").addClass("text-accent")
+                        $("#like").attr("data-action", "dislike")
+
+                    } else {
+                        $("#like-btn").attr("fill", "white")
+                        $("#like-txt").html("like")
+                        $("#like").removeClass("text-accent")
+                        $("#like").attr("data-action", "like")
+
+                    }
+                    //
+                }
             })
         })
         $("#comment-form").on("submit", (e) => {
@@ -143,7 +159,9 @@
                 url: "{% url 'comment-video' %}",
                 type: "POST",
                 data: userData,
-                success: (json) => {}
+                success: (json) => {
+
+                }
             })
         })
     })

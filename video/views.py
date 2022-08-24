@@ -31,13 +31,11 @@ def videoView(request, video_slug):
 @login_required
 def videoDataView(request):
     video = Video.objects.get(id=request.GET["video"])
-    numReactions = video.likes.all().filter(liked=True).count()
+    like_count = video.likes.all().count()
     comments = video.comments.filter(video=video).prefetch_related('user')
     numComments = comments.count()
-    userLiked = video.likes.all().filter(user=request.user)
     res = {
-        "reactions": numReactions,
-        "liked": userLiked[0].liked,
+        "reactions": like_count,
         "numComments": numComments,
         "comments": serializers.serialize("json", comments),
     }
@@ -64,9 +62,12 @@ def uploadVideoView(request):
 @login_required
 def LikeVideo(request):
     if request.method == "POST":
+        action = request.POST.get("action")
         video = Video.objects.get(id=request.POST["video"])
-        userLiked = Like.objects.update_or_create(
-            user=request.user, video=video)
+        if action == "like":
+            video.likes.add(request.user)
+        else:
+            video.likes.remove(request.user)
         return JsonResponse({"success": True})
 
 
